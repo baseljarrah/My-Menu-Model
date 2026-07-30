@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Tavola — AR Menu Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Karla:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/model-viewer/4.1.0/model-viewer.min.js"></script>
+<style>
+  :root{
+    --bg: #0F241B;
+    --bg-2: #133025;
+    --card: #F6EFDE;
+    --ink: #251B10;
+    --ink-soft: #5A4C3B;
+    --copper: #C17A3E;
+    --copper-deep: #9C5B29;
+    --wine: #7A2436;
+    --cream: #EFE7D6;
+    --line: rgba(37,27,16,0.18);
+    --serif: "Fraunces", serif;
+    --sans: "Karla", sans-serif;
+    --mono: "IBM Plex Mono", monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 50% -10%, var(--bg-2), var(--bg) 60%);
+    color: var(--cream);
+    font-family: var(--sans);
+    min-height:100vh;
+  }
+  #app{max-width:640px;margin:0 auto;padding:28px 18px 60px;}
+
+  .top-note{
+    font-family: var(--mono);
+    font-size:11px;
+    letter-spacing:.04em;
+    color: var(--cream);
+    background: rgba(193,122,62,0.14);
+    border:1px solid rgba(193,122,62,0.4);
+    border-radius:8px;
+    padding:10px 12px;
+    margin-bottom:22px;
+    line-height:1.5;
+  }
+  .top-note b{color:var(--copper);}
+  .top-note button{
+    float:right;
+    background:none;border:none;color:var(--cream);
+    font-family:var(--mono); font-size:11px; cursor:pointer;
+    opacity:.7; text-decoration:underline; padding:0; margin-left:8px;
+  }
+
+  header.menu-header{ text-align:center; margin-bottom:8px;}
+  .eyebrow{
+    font-family: var(--mono);
+    font-size:11px;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color: var(--copper);
+    margin:0 0 10px;
+  }
+  h1.brand{
+    font-family: var(--serif);
+    font-optical-sizing:auto;
+    font-weight:600;
+    font-size:44px;
+    letter-spacing:.01em;
+    margin:0;
+  }
+  p.tagline{
+    font-size:15px;
+    color: rgba(239,231,214,0.72);
+    margin:10px 0 34px;
+    font-style:italic;
+    font-family: var(--serif);
+  }
+
+  .dish{
+    background: var(--card);
+    color: var(--ink);
+    border-radius:6px;
+    display:flex;
+    align-items:stretch;
+    gap:0;
+    margin-bottom:22px;
+    box-shadow: 0 14px 28px rgba(0,0,0,0.28);
+    overflow:hidden;
+    position:relative;
+  }
+  .dish-info{
+    flex:1;
+    padding:20px 18px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    min-width:0;
+  }
+  .dish-top{ display:flex; justify-content:space-between; align-items:baseline; gap:10px;}
+  .dish-name{
+    font-family: var(--serif);
+    font-weight:600;
+    font-size:20px;
+    margin:0;
+  }
+  .dish-price{
+    font-family: var(--mono);
+    font-size:14px;
+    color: var(--wine);
+    white-space:nowrap;
+  }
+  .dish-desc{
+    font-size:13.5px;
+    color: var(--ink-soft);
+    line-height:1.5;
+    margin:6px 0 0;
+  }
+
+  .stub{
+    width:112px;
+    flex-shrink:0;
+    border-left: 2px dashed rgba(37,27,16,0.3);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    padding:14px 10px;
+    position:relative;
+    cursor:pointer;
+    background: rgba(37,27,16,0.02);
+  }
+  .stub:hover{ background: rgba(193,122,62,0.08); }
+  .stub::before,.stub::after{
+    content:"";
+    position:absolute;
+    left:-7px;
+    width:14px; height:14px;
+    border-radius:50%;
+    background: var(--bg);
+  }
+  .stub::before{ top:-7px; }
+  .stub::after{ bottom:-7px; }
+  .stub img{
+    width:78px; height:78px;
+    display:block;
+    border-radius:3px;
+    background:#fff;
+  }
+  .stub .label{
+    font-family: var(--mono);
+    font-size:8.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color: var(--copper-deep);
+    text-align:center;
+    line-height:1.3;
+  }
+
+  footer.foot{
+    margin-top:30px;
+    text-align:center;
+    font-size:11.5px;
+    color: rgba(239,231,214,0.45);
+    font-family: var(--mono);
+    line-height:1.7;
+  }
+
+  /* ---------- AR full-screen view ---------- */
+  #ar-view{
+    position:fixed; inset:0;
+    background: var(--bg);
+    display:none;
+    flex-direction:column;
+    z-index: 50;
+  }
+  #ar-view.active{ display:flex; }
+  .ar-bar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 18px;
+    font-family:var(--serif);
+    font-size:18px;
+    font-weight:600;
+  }
+  .ar-bar button{
+    font-family: var(--mono);
+    font-size:12px;
+    letter-spacing:.05em;
+    background: rgba(239,231,214,0.1);
+    color: var(--cream);
+    border:1px solid rgba(239,231,214,0.25);
+    border-radius:20px;
+    padding:8px 16px;
+    cursor:pointer;
+  }
+  model-viewer{
+    flex:1;
+    width:100%;
+    --poster-color: transparent;
+  }
+  .ar-hint{
+    text-align:center;
+    font-family:var(--mono);
+    font-size:11px;
+    color: rgba(239,231,214,0.55);
+    padding:12px 20px 22px;
+    line-height:1.6;
+  }
+
+  @media (max-width:420px){
+    h1.brand{font-size:34px;}
+    .stub{width:96px;}
+    .stub img{width:64px; height:64px;}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="top-note" id="hostNote">
+    <b>Before you scan this with a phone:</b> QR codes below only work once this page is hosted at a
+    real public URL (publish/share this page, or upload it to your own web host). Right now they point
+    at whatever address is currently open in this browser tab.
+    <button onclick="document.getElementById('hostNote').remove()">dismiss</button>
+  </div>
+
+  <header class="menu-header">
+    <p class="eyebrow">Tavola</p>
+    <h1 class="brand">Evening Menu</h1>
+    <p class="tagline">Scan a ticket. Watch the dish arrive at your table.</p>
+  </header>
+
+  <div id="menu-list"></div>
+
+  <footer class="foot">
+    AR MENU DEMO · replace items, names and models with your own dishes<br>
+    built with &lt;model-viewer&gt;
+  </footer>
+</div>
+
+<div id="ar-view">
+  <div class="ar-bar">
+    <span id="ar-title">Dish</span>
+    <button onclick="location.hash=''">✕ Close</button>
+  </div>
+  <model-viewer id="mv" camera-controls auto-rotate ar ar-modes="webxr scene-viewer"
+    shadow-intensity="1" exposure="1" environment-image="neutral" alt="3D preview of the dish">
+  </model-viewer>
+  <p class="ar-hint">
+    On Android (Chrome + ARCore) tap the AR icon in the bottom-right corner to place the dish on your table.<br>
+    On iPhone or desktop, drag to rotate — full AR placement needs a USDZ file for iOS, see the studio tool.
+  </p>
+</div>
+
+<script>
+  const items = [
+    {
+      id: "guac",
+      name: "Loaded Guacamole",
+      desc: "Hass avocado, charred lime, pickled shallot, tortilla chips.",
+      price: "$12",
+      model: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Avocado/glTF-Binary/Avocado.glb",
+      alt: "3D model of an avocado, halved"
+    },
+    {
+      id: "fish",
+      name: "Pan-Seared Barramundi",
+      desc: "Crisp skin, brown butter, capers, charred lemon.",
+      price: "$28",
+      model: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/BarramundiFish/glTF-Binary/BarramundiFish.glb",
+      alt: "3D model of a barramundi fish fillet"
+    },
+    {
+      id: "duck",
+      name: "Crispy Roast Duck",
+      desc: "Five-spice glaze, charred scallion, steamed bun.",
+      price: "$32",
+      model: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Binary/Duck.glb",
+      alt: "3D model of a roast duck"
+    },
+    {
+      id: "water",
+      name: "Sparkling Estate Water",
+      desc: "Chilled, in-house bottled, glass carafe.",
+      price: "$6",
+      model: "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/WaterBottle/glTF-Binary/WaterBottle.glb",
+      alt: "3D model of a glass water bottle"
+    }
+  ];
+
+  function baseUrl(){
+    return window.location.href.split('#')[0];
+  }
+  function qrFor(id){
+    const target = baseUrl() + '#item=' + encodeURIComponent(id);
+    return 'https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=8&data=' + encodeURIComponent(target);
+  }
+
+  function buildMenu(){
+    const list = document.getElementById('menu-list');
+    list.innerHTML = items.map(it => `
+      <div class="dish">
+        <div class="dish-info">
+          <div class="dish-top">
+            <h2 class="dish-name">${it.name}</h2>
+            <span class="dish-price">${it.price}</span>
+          </div>
+          <p class="dish-desc">${it.desc}</p>
+        </div>
+        <div class="stub" onclick="location.hash='item=${it.id}'">
+          <img src="${qrFor(it.id)}" alt="QR code to view ${it.name} in AR">
+          <div class="label">AR Preview<br>Scan Me</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function showItem(id){
+    const it = items.find(i => i.id === id);
+    if(!it) return showMenu();
+    document.getElementById('ar-title').textContent = it.name;
+    const mv = document.getElementById('mv');
+    mv.setAttribute('src', it.model);
+    mv.setAttribute('alt', it.alt);
+    document.getElementById('ar-view').classList.add('active');
+  }
+  function showMenu(){
+    document.getElementById('ar-view').classList.remove('active');
+  }
+  function route(){
+    const h = decodeURIComponent(location.hash.replace(/^#/, ''));
+    if(h.startsWith('item=')){
+      showItem(h.slice(5));
+    } else {
+      showMenu();
+    }
+  }
+
+  buildMenu();
+  route();
+  window.addEventListener('hashchange', route);
+</script>
+</body>
+</html>
