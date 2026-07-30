@@ -1,0 +1,11 @@
+Model Information:
+* title:	Tissue box test
+* source:	https://sketchfab.com/3d-models/tissue-box-test-f97740deb5ea43d9b50c6180a59d8d7b
+* author:	Xgamer757 (https://sketchfab.com/Xgamer757)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Tissue box test" (https://sketchfab.com/3d-models/tissue-box-test-f97740deb5ea43d9b50c6180a59d8d7b) by Xgamer757 (https://sketchfab.com/Xgamer757) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
